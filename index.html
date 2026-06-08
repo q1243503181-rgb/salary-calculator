@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工资计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e40af;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .month-nav button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .month-nav button:hover {
+            background: #1d4ed8;
+            transform: scale(1.05);
+        }
+
+        .month-nav span {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .calendar {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day-item {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+            min-height: 60px;
+        }
+
+        .day-item:hover {
+            border-color: #3b82f6;
+            transform: scale(1.05);
+        }
+
+        .day-item.weekday {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+
+        .day-item.weekend {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .day-item.holiday {
+            background: #fecaca;
+            border-color: #ef4444;
+        }
+
+        .day-item.national-holiday {
+            background: linear-gradient(135deg, #fecaca, #fca5a5);
+            border-color: #dc2626;
+        }
+
+        .day-number {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .day-hours {
+            font-size: 12px;
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .day-type {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .day-holiday-name {
+            font-size: 9px;
+            color: #dc2626;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .overtime-summary {
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e40af;
+        }
+
+        .summary-pay {
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+            margin-top: 4px;
+        }
+
+        .overtime-summary-total {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .overtime-summary-total .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 15px;
+        }
+
+        .overtime-summary-total .summary-row:first-child {
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            margin-bottom: 8px;
+        }
+
+        .overtime-summary-total .summary-row span:first-child {
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        .overtime-summary-total .summary-row span:last-child {
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+
+        .overtime-summary-total .summary-row.highlight span:last-child {
+            color: #059669;
+            font-size: 18px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #1e40af;
+            font-size: 20px;
+        }
+
+        .overtime-info {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .overtime-rate {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .modal-input {
+            margin-bottom: 20px;
+        }
+
+        .modal-input label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .modal-input input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary, .btn-secondary, .btn-danger {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-calculate {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #e5e7eb;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .result-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            background: #f1f5f9;
+            transform: translateY(-2px);
+        }
+
+        .result-label {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e40af;
+        }
+
+        .result-value.highlight {
+            color: #059669;
+            font-size: 22px;
+        }
+
+        .legend {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fef3c7;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #92400e;
+        }
+
+        .legend h4 {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .legend ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .legend li {
+            margin-bottom: 4px;
+        }
+
+        .holiday-legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.national {
+            background: #ef4444;
+        }
+
+        .legend-dot.custom {
+            background: #f59e0b;
+        }
+
+        .legend-dot.weekend {
+            background: #fbbf24;
+        }
+
+        .legend-dot.weekday {
+            background: #3b82f6;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .overtime-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .day-item {
+                min-height: 50px;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 工资计算器</h1>
+
+        <div class="form-group">
+            <label for="baseSalary">基本工资（元）</label>
+            <input type="number" id="baseSalary" placeholder="请输入基本工资" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+            <label for="performanceBonus">绩效补贴（元）</label>
+            <input type="number" id="performanceBonus" placeholder="0" min="0" step="0.01" value="0">
+        </div>
+
+        <div class="month-nav">
+            <button onclick="changeMonth(-1)">◀ 上月</button>
+            <span id="currentMonth"></span>
+            <button onclick="changeMonth(1)">下月 ▶</button>
+        </div>
+
+        <div class="calendar">
+            <div class="calendar-header">
+                <div>日</div>
+                <div>一</div>
+                <div>二</div>
+                <div>三</div>
+                <div>四</div>
+                <div>五</div>
+                <div>六</div>
+            </div>
+            <div class="calendar-days" id="calendarDays"></div>
+        </div>
+
+        <div class="holiday-legend">
+            <div class="legend-item">
+                <div class="legend-dot national"></div>
+                <span style="font-size: 12px; color: #64748b;">国定节假日</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot custom"></div>
+                <span style="font-size: 12px; color: #64748b;">自定义节假日</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot weekend"></div>
+                <span style="font-size: 12px; color: #64748b;">周末</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot weekday"></div>
+                <span style="font-size: 12px; color: #64748b;">工作日</span>
+            </div>
+        </div>
+
+        <div class="overtime-summary">
+            <div class="summary-item">
+                <div class="summary-label">工作日加班</div>
+                <div class="summary-value" id="summaryWeekday">0h</div>
+                <div class="summary-pay" id="summaryWeekdayPay">¥0.00</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">周末加班</div>
+                <div class="summary-value" id="summaryWeekend">0h</div>
+                <div class="summary-pay" id="summaryWeekendPay">¥0.00</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">节假日加班</div>
+                <div class="summary-value" id="summaryHoliday">0h</div>
+                <div class="summary-pay" id="summaryHolidayPay">¥0.00</div>
+            </div>
+        </div>
+
+        <div class="overtime-summary-total">
+            <div class="summary-row">
+                <span>合计加班小时</span>
+                <span id="summaryTotalHours">0h</span>
+            </div>
+            <div class="summary-row highlight">
+                <span>预估加班工资</span>
+                <span id="summaryOvertimePay">¥0.00</span>
+            </div>
+        </div>
+
+        <button class="btn-calculate" onclick="calculate()">计算工资</button>
+
+        <div class="legend">
+            <h4>计算说明</h4>
+            <ul>
+                <li>• 点击日期添加加班，红色为国定节假日</li>
+                <li>• 日工资 = 基本工资 ÷ 21.75天（国家标准月计薪天数）</li>
+                <li>• 小时工资 = 日工资 ÷ 8</li>
+                <li>• 工作日加班按1.5倍计算</li>
+                <li>• 周末加班按2倍计算</li>
+                <li>• 节假日加班按3倍计算</li>
+            </ul>
+        </div>
+
+        <div id="resultSection" class="result-section" style="display: none;">
+            <div class="result-title">📊 计算结果</div>
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-label">基本工资</div>
+                    <div class="result-value" id="resultBase"></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">加班工资</div>
+                    <div class="result-value" id="resultOvertime"></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">绩效补贴</div>
+                    <div class="result-value" id="resultBonus"></div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">实发工资</div>
+                    <div class="result-value highlight" id="resultNet"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="overtimeModal" onclick="handleModalClick(event)">
+        <div class="modal-content">
+            <h3 id="modalTitle">添加加班</h3>
+            <div class="overtime-info" id="overtimeInfo">
+                <div class="overtime-rate">工作日加班 ×1.5</div>
+            </div>
+            <div class="overtime-info" id="holidayInfo" style="display: none; background: #fef2f2;">
+                <div class="overtime-rate" style="color: #ef4444;">🎉 国定节假日</div>
+            </div>
+            <div class="modal-input">
+                <label>加班小时数</label>
+                <input type="number" id="overtimeHours" placeholder="请输入加班小时数" min="0.5" step="0.5" value="3">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn-secondary" onclick="toggleHoliday()" id="holidayBtn">标记节假日</button>
+                <button class="btn-danger" onclick="deleteOvertime()" id="deleteBtn" style="display: none;">删除</button>
+                <button class="btn-primary" onclick="saveOvertime()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let selectedDay = null;
+        let overtimeData = {};
+        let customHolidays = {};
+        let isHolidayMode = false;
+
+        // 国定节假日数据库
+        const nationalHolidays = {
+            2024: {
+                '01-01': '元旦',
+                '02-10': '春节', '02-11': '春节', '02-12': '春节', '02-13': '春节', '02-14': '春节', '02-15': '春节', '02-16': '春节', '02-17': '春节',
+                '04-04': '清明节', '04-05': '清明节', '04-06': '清明节',
+                '05-01': '劳动节', '05-02': '劳动节', '05-03': '劳动节', '05-04': '劳动节', '05-05': '劳动节',
+                '06-10': '端午节', '06-11': '端午节', '06-12': '端午节',
+                '09-15': '中秋节', '09-16': '中秋节', '09-17': '中秋节',
+                '10-01': '国庆节', '10-02': '国庆节', '10-03': '国庆节', '10-04': '国庆节', '10-05': '国庆节', '10-06': '国庆节', '10-07': '国庆节'
+            },
+            2025: {
+                '01-01': '元旦', '01-28': '元旦',
+                '01-29': '春节', '01-30': '春节', '01-31': '春节', '02-01': '春节', '02-02': '春节', '02-03': '春节', '02-04': '春节',
+                '04-04': '清明节', '04-05': '清明节', '04-06': '清明节',
+                '05-01': '劳动节', '05-02': '劳动节', '05-03': '劳动节', '05-04': '劳动节', '05-05': '劳动节',
+                '05-31': '端午节', '06-01': '端午节', '06-02': '端午节',
+                '10-01': '国庆节', '10-02': '国庆节', '10-03': '国庆节', '10-04': '国庆节', '10-05': '国庆节', '10-06': '国庆节', '10-07': '国庆节'
+            },
+            2026: {
+                '01-01': '元旦', '01-28': '元旦', '01-27': '元旦',
+                '02-17': '春节', '02-18': '春节', '02-19': '春节', '02-20': '春节', '02-21': '春节', '02-22': '春节', '02-23': '春节', '02-24': '春节',
+                '04-04': '清明节', '04-05': '清明节', '04-06': '清明节',
+                '05-01': '劳动节', '05-02': '劳动节', '05-03': '劳动节', '05-04': '劳动节', '05-05': '劳动节',
+                '06-20': '端午节', '06-21': '端午节', '06-22': '端午节',
+                '10-01': '国庆节', '10-02': '国庆节', '10-03': '国庆节', '10-04': '国庆节', '10-05': '国庆节', '10-06': '国庆节', '10-07': '国庆节'
+            }
+        };
+
+        function getDaysInMonth(year, month) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        function getFirstDayOfMonth(year, month) {
+            return new Date(year, month - 1, 1).getDay();
+        }
+
+        function isWeekend(year, month, day) {
+            const date = new Date(year, month - 1, day);
+            const dayOfWeek = date.getDay();
+            return dayOfWeek === 0 || dayOfWeek === 6;
+        }
+
+        function formatDateKey(year, month, day) {
+            return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        }
+
+        function getMonthKey(month) {
+            return `${month.toString().padStart(2, '0')}`;
+        }
+
+        function getHolidayName(year, month, day) {
+            const monthKey = getMonthKey(month);
+            const dateKey = `${monthKey}-${day.toString().padStart(2, '0')}`;
+            
+            const customHoliday = customHolidays[formatDateKey(year, month, day)];
+            if (customHoliday) {
+                return customHoliday;
+            }
+            
+            const yearHolidays = nationalHolidays[year];
+            if (yearHolidays && yearHolidays[dateKey]) {
+                return yearHolidays[dateKey];
+            }
+            
+            return null;
+        }
+
+        function isNationalHoliday(year, month, day) {
+            const monthKey = getMonthKey(month);
+            const dateKey = `${monthKey}-${day.toString().padStart(2, '0')}`;
+            
+            const yearHolidays = nationalHolidays[year];
+            return yearHolidays && yearHolidays[dateKey];
+        }
+
+        function isCustomHoliday(year, month, day) {
+            return customHolidays[formatDateKey(year, month, day)] !== undefined;
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            
+            document.getElementById('currentMonth').textContent = `${year}年${month}月`;
+
+            const daysInMonth = getDaysInMonth(year, month);
+            const firstDay = getFirstDayOfMonth(year, month);
+            
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.style.visibility = 'hidden';
+                calendarDays.appendChild(emptyDay);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayItem = document.createElement('div');
+                dayItem.className = 'day-item';
+                
+                const dateKey = formatDateKey(year, month, day);
+                const overtime = overtimeData[dateKey];
+                const holidayName = getHolidayName(year, month, day);
+                const isNational = isNationalHoliday(year, month, day);
+                const isCustom = isCustomHoliday(year, month, day);
+                const isWeekendDay = isWeekend(year, month, day);
+
+                if (overtime) {
+                    dayItem.classList.add(overtime.type);
+                } else if (isNational) {
+                    dayItem.classList.add('national-holiday');
+                } else if (isCustom) {
+                    dayItem.classList.add('holiday');
+                } else if (isWeekendDay) {
+                    dayItem.classList.add('weekend');
+                } else {
+                    dayItem.classList.add('weekday');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayItem.appendChild(dayNumber);
+
+                if (holidayName) {
+                    const holidayLabel = document.createElement('div');
+                    holidayLabel.className = 'day-holiday-name';
+                    holidayLabel.textContent = holidayName;
+                    dayItem.appendChild(holidayLabel);
+                }
+
+                if (overtime) {
+                    const dayHours = document.createElement('div');
+                    dayHours.className = 'day-hours';
+                    dayHours.textContent = `+${overtime.hours}h`;
+                    dayItem.appendChild(dayHours);
+
+                    const dayType = document.createElement('div');
+                    dayType.className = 'day-type';
+                    const typeLabels = { weekday: '平日', weekend: '周末', holiday: '假日' };
+                    dayType.textContent = typeLabels[overtime.type];
+                    dayItem.appendChild(dayType);
+                }
+
+                dayItem.onclick = () => openDayModal(year, month, day);
+                calendarDays.appendChild(dayItem);
+            }
+
+            updateSummary();
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function getDayType(year, month, day) {
+            const dateKey = formatDateKey(year, month, day);
+            const overtime = overtimeData[dateKey];
+            if (overtime) return overtime.type;
+            
+            const isNational = isNationalHoliday(year, month, day);
+            const isCustom = isCustomHoliday(year, month, day);
+            if (isNational || isCustom) return 'holiday';
+            if (isWeekend(year, month, day)) return 'weekend';
+            return 'weekday';
+        }
+
+        function openDayModal(year, month, day) {
+            selectedDay = { year, month, day };
+            const dateKey = formatDateKey(year, month, day);
+            const overtime = overtimeData[dateKey];
+            const dayType = getDayType(year, month, day);
+            const holidayName = getHolidayName(year, month, day);
+            const isNational = isNationalHoliday(year, month, day);
+
+            const typeInfo = {
+                weekday: { label: '工作日加班', rate: '×1.5', color: '#3b82f6' },
+                weekend: { label: '周末加班', rate: '×2', color: '#f59e0b' },
+                holiday: { label: '节假日加班', rate: '×3', color: '#ef4444' }
+            };
+
+            document.getElementById('modalTitle').textContent = `${year}年${month}月${day}日 - 加班设置`;
+            document.getElementById('overtimeHours').value = overtime ? overtime.hours : 3;
+            document.getElementById('overtimeInfo').innerHTML = `
+                <div class="overtime-rate" style="color: ${typeInfo[dayType].color};">
+                    ${typeInfo[dayType].label} ${typeInfo[dayType].rate}
+                </div>
+            `;
+            
+            const holidayInfo = document.getElementById('holidayInfo');
+            const holidayBtn = document.getElementById('holidayBtn');
+            
+            if (holidayName) {
+                if (isNational) {
+                    holidayInfo.style.display = 'block';
+                    holidayInfo.innerHTML = `<div class="overtime-rate" style="color: #ef4444;">🎉 ${holidayName}</div>`;
+                    holidayBtn.style.display = 'none';
+                } else {
+                    holidayInfo.style.display = 'block';
+                    holidayInfo.innerHTML = `<div class="overtime-rate" style="color: #f59e0b;">🎊 自定义节假日</div>`;
+                    holidayBtn.textContent = '取消标记';
+                    holidayBtn.style.display = 'block';
+                }
+            } else {
+                holidayInfo.style.display = 'none';
+                holidayBtn.textContent = '标记节假日';
+                holidayBtn.style.display = 'block';
+            }
+            
+            document.getElementById('deleteBtn').style.display = overtime ? 'block' : 'none';
+            document.getElementById('overtimeModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('overtimeModal').style.display = 'none';
+            selectedDay = null;
+            isHolidayMode = false;
+        }
+
+        function handleModalClick(event) {
+            if (event.target === event.currentTarget) {
+                closeModal();
+            }
+        }
+
+        function toggleHoliday() {
+            if (!selectedDay) return;
+            
+            const dateKey = formatDateKey(selectedDay.year, selectedDay.month, selectedDay.day);
+            
+            if (isCustomHoliday(selectedDay.year, selectedDay.month, selectedDay.day)) {
+                delete customHolidays[dateKey];
+            } else {
+                customHolidays[dateKey] = '自定义节假日';
+            }
+            
+            openDayModal(selectedDay.year, selectedDay.month, selectedDay.day);
+            renderCalendar();
+        }
+
+        function saveOvertime() {
+            if (!selectedDay) return;
+            
+            const hours = parseFloat(document.getElementById('overtimeHours').value) || 0;
+            if (hours <= 0) {
+                alert('请输入有效的加班小时数');
+                return;
+            }
+
+            const dateKey = formatDateKey(selectedDay.year, selectedDay.month, selectedDay.day);
+            const dayType = getDayType(selectedDay.year, selectedDay.month, selectedDay.day);
+            
+            overtimeData[dateKey] = {
+                hours: hours,
+                type: dayType
+            };
+
+            closeModal();
+            renderCalendar();
+        }
+
+        function deleteOvertime() {
+            if (!selectedDay) return;
+            
+            const dateKey = formatDateKey(selectedDay.year, selectedDay.month, selectedDay.day);
+            delete overtimeData[dateKey];
+            
+            closeModal();
+            renderCalendar();
+        }
+
+        function updateSummary() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            
+            let weekdayHours = 0;
+            let weekendHours = 0;
+            let holidayHours = 0;
+
+            for (let day = 1; day <= getDaysInMonth(year, month); day++) {
+                const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const overtime = overtimeData[dateKey];
+                if (overtime) {
+                    if (overtime.type === 'weekday') weekdayHours += overtime.hours;
+                    else if (overtime.type === 'weekend') weekendHours += overtime.hours;
+                    else if (overtime.type === 'holiday') holidayHours += overtime.hours;
+                }
+            }
+
+            const totalHours = weekdayHours + weekendHours + holidayHours;
+            
+            let weekdayPay = 0;
+            let weekendPay = 0;
+            let holidayPay = 0;
+            if (baseSalary > 0) {
+                const monthlyPayDays = 21.75;
+                const dailyWage = baseSalary / monthlyPayDays;
+                const hourlyWage = dailyWage / 8;
+                weekdayPay = hourlyWage * 1.5 * weekdayHours;
+                weekendPay = hourlyWage * 2 * weekendHours;
+                holidayPay = hourlyWage * 3 * holidayHours;
+            }
+            const overtimePay = weekdayPay + weekendPay + holidayPay;
+
+            document.getElementById('summaryWeekday').textContent = `${weekdayHours}h`;
+            document.getElementById('summaryWeekend').textContent = `${weekendHours}h`;
+            document.getElementById('summaryHoliday').textContent = `${holidayHours}h`;
+            document.getElementById('summaryWeekdayPay').textContent = `¥${weekdayPay.toFixed(2)}`;
+            document.getElementById('summaryWeekendPay').textContent = `¥${weekendPay.toFixed(2)}`;
+            document.getElementById('summaryHolidayPay').textContent = `¥${holidayPay.toFixed(2)}`;
+            document.getElementById('summaryTotalHours').textContent = `${totalHours}h`;
+            document.getElementById('summaryOvertimePay').textContent = `¥${overtimePay.toFixed(2)}`;
+        }
+
+        function calculate() {
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const performanceBonus = parseFloat(document.getElementById('performanceBonus').value) || 0;
+
+            if (baseSalary <= 0) {
+                alert('请输入有效的基本工资');
+                return;
+            }
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            const daysInMonth = getDaysInMonth(year, month);
+            
+            const monthlyPayDays = 21.75;
+            const dailyWage = baseSalary / monthlyPayDays;
+            const hourlyWage = dailyWage / 8;
+
+            let weekdayHours = 0;
+            let weekendHours = 0;
+            let holidayHours = 0;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const overtime = overtimeData[dateKey];
+                if (overtime) {
+                    if (overtime.type === 'weekday') weekdayHours += overtime.hours;
+                    else if (overtime.type === 'weekend') weekendHours += overtime.hours;
+                    else if (overtime.type === 'holiday') holidayHours += overtime.hours;
+                }
+            }
+
+            const weekdayPay = hourlyWage * 1.5 * weekdayHours;
+            const weekendPay = hourlyWage * 2 * weekendHours;
+            const holidayPay = hourlyWage * 3 * holidayHours;
+            const totalOvertimePay = weekdayPay + weekendPay + holidayPay;
+
+            const netSalary = baseSalary + totalOvertimePay + performanceBonus;
+
+            document.getElementById('resultBase').textContent = `¥${baseSalary.toFixed(2)}`;
+            document.getElementById('resultOvertime').textContent = `¥${totalOvertimePay.toFixed(2)}`;
+            document.getElementById('resultBonus').textContent = `¥${performanceBonus.toFixed(2)}`;
+            document.getElementById('resultNet').textContent = `¥${netSalary.toFixed(2)}`;
+
+            document.getElementById('resultSection').style.display = 'block';
+        }
+
+        // 页面加载完成后初始化
+        window.onload = function() {
+            // 加载保存的设置
+            try {
+                const saved = localStorage.getItem('salaryCalculatorSettings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    if (settings.baseSalary) document.getElementById('baseSalary').value = settings.baseSalary;
+                    if (settings.performanceBonus) document.getElementById('performanceBonus').value = settings.performanceBonus;
+                }
+            } catch (e) {
+                console.log('加载设置失败');
+            }
+
+            renderCalendar();
+
+            // 添加事件监听 - 在页面加载后再绑定
+            document.getElementById('baseSalary').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    calculate();
+                }
+            });
+
+            document.getElementById('baseSalary').addEventListener('input', function() {
+                updateSummary();
+                saveSettings();
+            });
+
+            document.getElementById('performanceBonus').addEventListener('input', function() {
+                updateSummary();
+                saveSettings();
+            });
+        };
+
+        // 保存设置
+        function saveSettings() {
+            try {
+                const settings = {
+                    baseSalary: document.getElementById('baseSalary').value,
+                    performanceBonus: document.getElementById('performanceBonus').value
+                };
+                localStorage.setItem('salaryCalculatorSettings', JSON.stringify(settings));
+            } catch (e) {
+                console.log('保存设置失败');
+            }
+        }
+    </script>
+</body>
+</html>
