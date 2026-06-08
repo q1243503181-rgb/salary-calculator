@@ -149,11 +149,6 @@
             border-color: #ef4444;
         }
 
-        .day-item.national-holiday {
-            background: linear-gradient(135deg, #fecaca, #fca5a5);
-            border-color: #dc2626;
-        }
-
         .day-number {
             font-size: 14px;
             font-weight: 600;
@@ -194,15 +189,6 @@
             font-size: 13px;
         }
 
-        .legend ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .legend li {
-            margin-bottom: 4px;
-        }
-
         .holiday-legend {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -223,7 +209,6 @@
             border-radius: 50%;
         }
 
-        .legend-dot.national { background: #ef4444; }
         .legend-dot.custom { background: #f59e0b; }
         .legend-dot.weekend { background: #fbbf24; }
         .legend-dot.weekday { background: #3b82f6; }
@@ -627,10 +612,6 @@
             <h4>📅 图例说明</h4>
             <div class="holiday-legend">
                 <div class="legend-item">
-                    <div class="legend-dot national"></div>
-                    <span>国定节假日</span>
-                </div>
-                <div class="legend-item">
                     <div class="legend-dot custom"></div>
                     <span>自定义节假日</span>
                 </div>
@@ -706,7 +687,7 @@
                 <div class="overtime-rate">工作日加班 ×1.5</div>
             </div>
             <div class="overtime-info" id="holidayInfo" style="display: none; background: #fef2f2;">
-                <div class="overtime-rate" style="color: #ef4444;">🎉 国定节假日</div>
+                <div class="overtime-rate" style="color: #f59e0b;">🎊 自定义节假日</div>
             </div>
             <div class="modal-input">
                 <label>加班小时数</label>
@@ -727,40 +708,6 @@
         let overtimeData = {};
         let customHolidays = {};
 
-        // 国定节假日数据库
-        const nationalHolidays = {
-            2024: {
-                '01-01': '元旦', '02-10': '春节', '02-11': '春节', '02-12': '春节', '02-13': '春节', 
-                '02-14': '春节', '02-15': '春节', '02-16': '春节', '02-17': '春节',
-                '04-04': '清明节', '04-05': '清明节', '04-06': '清明节',
-                '05-01': '劳动节', '05-02': '劳动节', '05-03': '劳动节', '05-04': '劳动节', '05-05': '劳动节',
-                '06-10': '端午节', '06-11': '端午节', '06-12': '端午节',
-                '09-15': '中秋节', '09-16': '中秋节', '09-17': '中秋节',
-                '10-01': '国庆节', '10-02': '国庆节', '10-03': '国庆节', '10-04': '国庆节', 
-                '10-05': '国庆节', '10-06': '国庆节', '10-07': '国庆节'
-            },
-            2025: {
-                '01-01': '元旦', '01-28': '元旦',
-                '01-29': '春节', '01-30': '春节', '01-31': '春节', '02-01': '春节', '02-02': '春节', 
-                '02-03': '春节', '02-04': '春节',
-                '04-04': '清明节', '04-05': '清明节', '04-06': '清明节',
-                '05-01': '劳动节', '05-02': '劳动节', '05-03': '劳动节', '05-04': '劳动节', '05-05': '劳动节',
-                '05-31': '端午节', '06-01': '端午节', '06-02': '端午节',
-                '10-01': '国庆节', '10-02': '国庆节', '10-03': '国庆节', '10-04': '国庆节', 
-                '10-05': '国庆节', '10-06': '国庆节', '10-07': '国庆节'
-            },
-            2026: {
-                '01-01': '元旦', '01-28': '元旦', '01-27': '元旦',
-                '02-17': '春节', '02-18': '春节', '02-19': '春节', '02-20': '春节', '02-21': '春节', 
-                '02-22': '春节', '02-23': '春节', '02-24': '春节',
-                '04-04': '清明节', '04-05': '清明节', '04-06': '清明节',
-                '05-01': '劳动节', '05-02': '劳动节', '05-03': '劳动节', '05-04': '劳动节', '05-05': '劳动节',
-                '06-20': '端午节', '06-21': '端午节', '06-22': '端午节',
-                '10-01': '国庆节', '10-02': '国庆节', '10-03': '国庆节', '10-04': '国庆节', 
-                '10-05': '国庆节', '10-06': '国庆节', '10-07': '国庆节'
-            }
-        };
-
         function getDaysInMonth(year, month) {
             return new Date(year, month, 0).getDate();
         }
@@ -779,17 +726,8 @@
         }
 
         function getHolidayName(year, month, day) {
-            const dateKey = `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            const custom = customHolidays[formatDateKey(year, month, day)];
-            if (custom) return custom;
-            const national = nationalHolidays[year];
-            return national && national[dateKey] ? national[dateKey] : null;
-        }
-
-        function isNationalHoliday(year, month, day) {
-            const dateKey = `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            const yearHolidays = nationalHolidays[year];
-            return yearHolidays && yearHolidays[dateKey];
+            const dateKey = formatDateKey(year, month, day);
+            return customHolidays[dateKey] || null;
         }
 
         function isCustomHoliday(year, month, day) {
@@ -817,14 +755,11 @@
                 const dateKey = formatDateKey(year, month, day);
                 const overtime = overtimeData[dateKey];
                 const holidayName = getHolidayName(year, month, day);
-                const isNational = isNationalHoliday(year, month, day);
                 const isCustom = isCustomHoliday(year, month, day);
                 const isWeekendDay = isWeekend(year, month, day);
 
                 if (overtime) {
                     dayItem.classList.add(overtime.type);
-                } else if (isNational) {
-                    dayItem.classList.add('national-holiday');
                 } else if (isCustom) {
                     dayItem.classList.add('holiday');
                 } else if (isWeekendDay) {
@@ -872,7 +807,7 @@
             const dateKey = formatDateKey(year, month, day);
             const overtime = overtimeData[dateKey];
             if (overtime) return overtime.type;
-            if (isNationalHoliday(year, month, day) || isCustomHoliday(year, month, day)) return 'holiday';
+            if (isCustomHoliday(year, month, day)) return 'holiday';
             if (isWeekend(year, month, day)) return 'weekend';
             return 'weekday';
         }
@@ -883,7 +818,6 @@
             const overtime = overtimeData[dateKey];
             const dayType = getDayType(year, month, day);
             const holidayName = getHolidayName(year, month, day);
-            const isNational = isNationalHoliday(year, month, day);
 
             const typeInfo = {
                 weekday: { label: '工作日加班', rate: '×1.5', color: '#3b82f6' },
@@ -902,16 +836,9 @@
             const holidayBtn = document.getElementById('holidayBtn');
             
             if (holidayName) {
-                if (isNational) {
-                    holidayInfo.style.display = 'block';
-                    holidayInfo.innerHTML = `<div class="overtime-rate" style="color: #ef4444;">🎉 ${holidayName}</div>`;
-                    holidayBtn.style.display = 'none';
-                } else {
-                    holidayInfo.style.display = 'block';
-                    holidayInfo.innerHTML = `<div class="overtime-rate" style="color: #f59e0b;">🎊 自定义节假日</div>`;
-                    holidayBtn.textContent = '取消标记';
-                    holidayBtn.style.display = 'block';
-                }
+                holidayInfo.style.display = 'block';
+                holidayBtn.textContent = '取消标记';
+                holidayBtn.style.display = 'block';
             } else {
                 holidayInfo.style.display = 'none';
                 holidayBtn.textContent = '标记节假日';
@@ -937,7 +864,7 @@
             if (isCustomHoliday(selectedDay.year, selectedDay.month, selectedDay.day)) {
                 delete customHolidays[dateKey];
             } else {
-                customHolidays[dateKey] = '自定义节假日';
+                customHolidays[dateKey] = '节假日';
             }
             openDayModal(selectedDay.year, selectedDay.month, selectedDay.day);
             renderCalendar();
